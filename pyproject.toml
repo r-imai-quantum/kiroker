@@ -1,7 +1,8 @@
 [tool.poetry]
-name = "kiroku"
+name = "kiroker"
 version = "0.1.0"
-description = ""
+license = "MIT License"
+description = "A changelog generator."
 authors = ["Ryosuke Imai <imai@qunasys.com>"]
 
 [tool.poetry.dependencies]

@@ -1,4 +1,4 @@
-# Kiroku
+# Kiroker
 
 A changelog generator
 
@@ -11,11 +11,11 @@ A changelog generator
 For example, to build changelog using entires in the example directry, execute
 
 ```
-python -m kiroku example
+python -m kiroker example
 ```
 
 You can remove unreleased entires by adding `--hide-unreleased` option
 
 ```
-python -m kiroku example --hide-unreleased
+python -m kiroker example --hide-unreleased
 ```
