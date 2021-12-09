@@ -6,6 +6,12 @@ A changelog generator
 
 - VSC friendly
 
+## How to install
+
+```
+pip install kiroker
+```
+
 ## How to use
 
 For example, to build changelog using entires in the example directry, execute
