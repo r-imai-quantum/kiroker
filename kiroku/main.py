@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import glob
 import io
+import sys
 import os
 import pathlib
 from datetime import date as dtdate
@@ -20,6 +21,10 @@ categories = {
 }
 
 
+class InvalidCategory(ValueError):
+    pass
+
+
 class Release:
     def __init__(
         self, version: Optional[str], date: Optional[date] = None, is_released=True
@@ -35,7 +40,7 @@ class Release:
 
     def add_entry(self, category_str: str, body: str) -> None:
         if category_str not in self._categories:
-            raise ValueError(f"Unknown category: {category_str}.")
+            raise InvalidCategory(f"Unknown category: {category_str}.")
         self._categories[category_str].append(body)
 
     @property
@@ -108,7 +113,14 @@ def read_releaselog_dir(dirpath) -> list[Release]:
         for entry_yaml in glob.glob(os.path.join(str(p), d, "*")):
             with open(entry_yaml) as fp:
                 entry = yaml.safe_load(fp)
-                rel.add_entry(entry["category"], entry["body"])
+                if "category" not in entry:
+                    raise ValueError(f"Entry must have category. ({entry_yaml})")
+                if "body" not in entry:
+                    raise ValueError(f"Entry must have body. ({entry_yaml})")
+                try:
+                    rel.add_entry(entry["category"], entry["body"])
+                except InvalidCategory:
+                    raise ValueError(f"Entry has invalid category. ({entry_yaml})")
         releases += [rel]
     return releases
 
@@ -132,12 +144,17 @@ def main():
     parser.add_argument("input_dir")
     args = parser.parse_args()
 
-    releases = read_releaselog_dir(args.input_dir)
-    header = read_text(args.input_dir, "header")
-    footer = read_text(args.input_dir, "footer")
-    sio = io.StringIO()
-    write_changelog(releases, header, footer, sio, args.hide_unreleased)
-    print(sio.getvalue())
+    try:
+        releases = read_releaselog_dir(args.input_dir)
+        header = read_text(args.input_dir, "header")
+        footer = read_text(args.input_dir, "footer")
+        sio = io.StringIO()
+        write_changelog(releases, header, footer, sio, args.hide_unreleased)
+        print(sio.getvalue())
+        sys.exit(0)
+    except Exception as e:
+        sys.stderr.write(f"{e}\n")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
